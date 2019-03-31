@@ -1,24 +1,58 @@
 
-
-
-
 //get data from firestore
-db.collection('guides').get().then(snapshot => {
-    //console.log(snapshot.docs);
-    setupGuides(snapshot.docs);
-});
-
-
+// db.collection('guides').get().then(snapshot => {
+//     //console.log(snapshot.docs);
+//     setupGuides(snapshot.docs);
+// });
+ 
+ 
 
 //listen for auth status changes
 auth.onAuthStateChanged(user =>{
     //console.log(user)
     if(user){
-        console.log('user loggeg in', user)
+
+        // db.collection('guides').get().then(snapshot => {
+        //     //console.log(snapshot.docs);
+        //     setupGuides(snapshot.docs);
+        //     //toggle UI element
+        //     setupUI(user);
+        // });
+
+        //onSnapshot is to set firestore realtime listener
+          db.collection('guides').onSnapshot(snapshot => {
+            //console.log(snapshot.docs);
+            setupGuides(snapshot.docs);
+            //toggle UI element
+            setupUI(user);
+        }).catch(err => {
+            console.log(err.message);
+        });
     }else{
-        console.log('user logged out');
+        //console.log('user logged out');
+        setupUI();
+        setupGuides([]);
     }
 });
+
+
+// create new guide
+const createForm = document.querySelector('#create-form');
+createForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // add data from create 
+    db.collection('guides').add({
+        title: createForm['title'].value,
+        content: createForm['content'].value
+    }).then(() => {
+        const modal = document.querySelector('#modal-create');
+        //close modal and rest form
+        M.Modal.getInstance(modal).close();
+        createForm.reset();
+    }).catch(err => {
+        console.log(err.message);
+    })
+})
 
 
 
