@@ -1,3 +1,18 @@
+// add admin cloud function
+const adminForm = document.querySelector('.admin-actions');
+
+adminForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const adminEmail = document.querySelector('#admin-email').value;
+    const addAdminRole = functions.httpsCallable('addAdminRole');
+    addAdminRole({email: adminEmail}).then(result => {
+        console.log(result);
+    })
+})
+
+
+
+
 
 //get data from firestore
 // db.collection('guides').get().then(snapshot => {
@@ -18,13 +33,17 @@ auth.onAuthStateChanged(user =>{
         //     //toggle UI element
         //     setupUI(user);
         // });
-
-        //onSnapshot is to set firestore realtime listener
+          user.getIdTokenResult().then(idTokenResult => {
+              //console.log(idTokenResult.claims.admin);
+              user.admin = idTokenResult.claims.admin;
+               //toggle UI element
+              setupUI(user);
+          })
+          //onSnapshot is to set firestore realtime listener
           db.collection('guides').onSnapshot(snapshot => {
             //console.log(snapshot.docs);
             setupGuides(snapshot.docs);
-            //toggle UI element
-            setupUI(user);
+
         }, err => {
             console.log(err.message);
         });
